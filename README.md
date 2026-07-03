@@ -32,7 +32,7 @@ ARXIV_RETRY_WAIT_SECONDS=30
 
 ### Task 2: API 없이 쓸 Ollama 모델 선정
 
-기본 모델은 `qwen3:8b`로 잡았습니다.
+기본 모델은 `qwen3:8b`로 선정하였습니다.
 
 이유:
 

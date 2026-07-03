@@ -17,9 +17,9 @@ Agent Laboratory 논문의 문헌조사 단계를 작게 재현한 미니 프로
 
 선택 옵션으로 `ExperimentReviewerAgent`, `NoveltyReviewerAgent`, `ImpactReviewerAgent`도 실행할 수 있습니다.
 
-## 미션 반영
+## Task 반영
 
-### 미션 1: fallback 제거
+### Task 1: fallback 제거
 
 `src/paperagent/arxiv_tool.py`는 fallback 논문 ID를 쓰지 않습니다. arXiv 검색이 rate limit 또는 네트워크 문제로 실패하면 조용히 다른 논문으로 대체하지 않고 에러를 발생시킵니다. 그래서 실제 검색이 되는지 바로 확인할 수 있습니다.
 
@@ -30,7 +30,7 @@ ARXIV_MAX_ATTEMPTS=5
 ARXIV_RETRY_WAIT_SECONDS=30
 ```
 
-### 미션 2: API 없이 쓸 Ollama 모델 선정
+### Task 2: API 없이 쓸 Ollama 모델 선정
 
 기본 모델은 `qwen3:8b`로 잡았습니다.
 

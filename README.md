@@ -1,6 +1,6 @@
 # PaperAgent Mini
 
-Agent Laboratory 논문의 문헌조사 단계를 작게 재현한 미니 프로젝트입니다. 팀원 repo의 `1st` 단일 파일 구현과 `2nd` 패키지 구현을 참고하되, 이 버전은 바로 확장하기 쉽도록 `src/paperagent` 패키지 구조로 정리했습니다.
+Agent Laboratory 논문의 문헌조사 단계를 작게 재현한 미니 프로젝트입니다.
 
 ## 구현 범위
 

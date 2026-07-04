@@ -1,6 +1,7 @@
 ## Documents
 
 - [Agent Roadmap](./AGENT_ROADMAP.md)
+- [PaperAgent Package Roadmap](./src/paperagent/PACKAGES.md)
 
 # PaperAgent Mini
 

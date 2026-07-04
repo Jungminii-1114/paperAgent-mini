@@ -28,6 +28,7 @@ if str(SRC_DIR) not in sys.path:
 os.chdir(PROJECT_ROOT)
 
 from paperagent.workflow import run_pipeline  # noqa: E402
+from paperagent.config import get_settings  # noqa: E402
 
 mcp = FastMCP("paperagent-mini")
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "outputs"
@@ -50,11 +51,30 @@ def start_paperagent_review() -> str:
 
 
 @mcp.tool()
+def check_paperagent_settings() -> str:
+    """Check which local PaperAgent settings this MCP server is using."""
+    settings = get_settings()
+    return (
+        "# PaperAgent 설정 확인\n\n"
+        f"- project_root: `{PROJECT_ROOT}`\n"
+        f"- llm_provider: `{settings.llm_provider}`\n"
+        f"- llm_model: `{settings.llm_model}`\n"
+        f"- ollama_url: `{settings.ollama_url}`\n"
+        f"- output_dir: `{settings.output_dir}`\n\n"
+        "이 값이 `ollama` / `qwen3:8b`이면 OpenAI quota를 쓰지 않습니다."
+    )
+
+
+@mcp.tool()
 def run_paper_literature_review(
     topic: str,
     max_papers: int = 3,
-    enable_prototype: bool = True,
+    enable_prototype: bool = False,
+    enable_review: bool = False,
     enable_extra_reviewers: bool = False,
+    enable_report: bool = False,
+    read_pdf: bool = False,
+    enable_literature_review: bool = False,
 ) -> str:
     """Search arXiv using the user's topic, read papers, run agents, and save outputs.
 
@@ -75,7 +95,11 @@ def run_paper_literature_review(
             max_papers=max_papers,
             output_dir=str(DEFAULT_OUTPUT_DIR),
             enable_prototype=enable_prototype,
+            enable_review=enable_review,
             enable_extra_reviewers=enable_extra_reviewers,
+            enable_report=enable_report,
+            read_pdf=read_pdf,
+            enable_literature_review=enable_literature_review,
         )
     except RuntimeError as exc:
         return f"# PaperAgent 실행 실패\n\n{exc}"
@@ -85,6 +109,9 @@ def run_paper_literature_review(
 def _render_mcp_response(result) -> str:
     paper_rows = _extract_paper_table_rows(result.paper_summaries_path)
     review_summary = _extract_review_summary(result.final_review_path)
+    paper_detail_lines = [
+        f"- 논문별 개별 파일: `{path}`" for path in result.paper_detail_paths
+    ]
 
     optional_paths = [
         ("요약 검토 피드백", result.reviewer_feedback_path),
@@ -115,6 +142,7 @@ def _render_mcp_response(result) -> str:
         f"{review_summary}\n\n"
         "## 저장된 파일\n\n"
         f"- 논문별 요약: `{result.paper_summaries_path}`\n"
+        f"{chr(10).join(paper_detail_lines)}\n"
         f"- 최종 문헌 리뷰: `{result.final_review_path}`\n"
         f"{chr(10).join(optional_lines)}\n\n"
         "Claude는 위 표와 한줄 요약을 사용자에게 그대로 보여주고, 필요하면 저장 파일을 열어 더 자세히 보면 됩니다."

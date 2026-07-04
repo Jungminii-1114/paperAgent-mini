@@ -1,8 +1,6 @@
 ## Documents
 
 - [Agent Roadmap](./AGENT_ROADMAP.md)
-- [Implemented Agents](./AGENTS.md)
-- [Project Structure](./STRUCTURE.md)
 
 # PaperAgent Mini
 

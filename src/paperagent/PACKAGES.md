@@ -16,3 +16,12 @@ src/paperagent/
 ├── config.py
 ├── llm.py
 └── workflow.py
+
+## File Descriptions
+
+| File | Role | Description |
+|---|---|---|
+| `__init__.py` | Package metadata | `paperagent` 패키지의 기본 설명과 버전 정보를 정의합니다. 현재 버전은 `0.2.0`입니다. |
+| `__main__.py` | Module entry point | `python -m paperagent`로 실행했을 때 CLI가 동작하도록 `paperagent.cli.main()`을 호출합니다. |
+| `agents.py` | Agent definitions | PaperAgent workflow에서 사용하는 agent class들을 정의합니다. `BaseAgent`, `PaperReaderAgent`, `ReviewerAgent`, `PostdocAgent`, `ProfessorAgent`, `MethodExtractionAgent`, `PrototypePlannerAgent`, `Prototype
+```

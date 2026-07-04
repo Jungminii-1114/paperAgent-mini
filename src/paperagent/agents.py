@@ -42,17 +42,10 @@ class PaperReaderAgent(BaseAgent):
 
     def summarize_paper(self, paper: Any, full_text: str) -> PaperSummary:
         user_prompt = f"""
-Research topic:
-{self.topic}
-
-Paper title:
-{paper.title}
-
-Paper abstract:
-{paper.summary}
-
-Paper text:
-{full_text}
+Research topic: {self.topic}
+Paper title: {paper.title}
+Paper abstract: {paper.summary}
+Paper text: {full_text}
 
 아래 항목을 포함해 한국어 요약을 작성하세요.
 - Problem: 논문이 해결하려는 문제
@@ -78,17 +71,11 @@ class ReviewerAgent(BaseAgent):
 
     def review_summary(self, summary: PaperSummary, full_text: str) -> str:
         user_prompt = f"""
-Paper title:
-{summary.title}
 
-Paper abstract:
-{summary.abstract}
-
-Paper text excerpt:
-{full_text[:12000]}
-
-Student summary:
-{summary.summary}
+Paper title: {summary.title}
+Paper abstract: {summary.abstract}
+Paper text excerpt: {full_text[:12000]}
+Student summary: {summary.summary}
 
 요약 품질을 검토하세요. 아래 형식을 지켜주세요.
 1. Accuracy score: 1-5
@@ -112,8 +99,7 @@ class PostdocAgent(BaseAgent):
         reviewer_feedback: str = "",
     ) -> str:
         user_prompt = f"""
-Research topic:
-{topic}
+Research topic: {topic}
 
 Paper summaries:
 {_join_summaries(summaries)}
@@ -148,20 +134,11 @@ class ProfessorAgent(BaseAgent):
         extra_reviews: str = "",
     ) -> str:
         user_prompt = f"""
-Research topic:
-{topic}
-
-Literature review:
-{literature_review}
-
-Implementable methods:
-{method_text or "Not generated."}
-
-Implementation plan:
-{implementation_plan or "Not generated."}
-
-Extra reviewer reports:
-{extra_reviews or "Not generated."}
+Research topic: {topic}
+Literature review: {literature_review}
+Implementable methods: {method_text or "Not generated."}
+Implementation plan: {implementation_plan or "Not generated."}
+Extra reviewer reports: {extra_reviews or "Not generated."}
 
 발표나 과제 제출에 쓸 수 있는 최종 보고서 초안을 한국어로 작성하세요.
 포함할 항목:
@@ -183,11 +160,9 @@ class MethodExtractionAgent(BaseAgent):
 
     def extract_implementable_method(self, topic: str, summaries: list[PaperSummary]) -> str:
         user_prompt = f"""
-Research topic:
-{topic}
 
-Paper summaries:
-{_join_summaries(summaries)}
+Research topic: {topic}
+Paper summaries: {_join_summaries(summaries)}
 
 실제 코드로 구현 가능한 알고리즘, 수식, 데이터 흐름, agent 설계를 추출하세요.
 가능하면 pseudo-code와 구현 난이도도 함께 정리하세요.
@@ -203,11 +178,9 @@ class PrototypePlannerAgent(BaseAgent):
 
     def write_implementation_plan(self, topic: str, method_text: str) -> str:
         user_prompt = f"""
-Research topic:
-{topic}
 
-Extracted method:
-{method_text}
+Research topic: {topic}
+Extracted method: {method_text}
 
 mock data만으로 실행 가능한 `prototype.py`를 만들기 위한 개발 계획을 작성하세요.
 포함할 항목:
@@ -228,11 +201,8 @@ class PrototypeWriterAgent(BaseAgent):
 
     def generate_prototype_code(self, topic: str, implementation_plan: str) -> str:
         user_prompt = f"""
-Research topic:
-{topic}
-
-Implementation Plan:
-{implementation_plan}
+Research topic: {topic}
+Implementation Plan: {implementation_plan}
 
 위 계획을 바탕으로 동작하는 Python 코드를 작성하세요.
 조건:
@@ -245,11 +215,9 @@ Implementation Plan:
 
     def write_prototype_readme(self, topic: str, implementation_plan: str) -> str:
         user_prompt = f"""
-Research topic:
-{topic}
-
-Implementation Plan:
-{implementation_plan}
+        
+Research topic: {topic} 
+Implementation Plan: {implementation_plan}
 
 생성된 `prototype.py` 실행 안내 README를 한국어로 작성하세요.
 설치, 실행 명령, 예상 출력, 다음 개선점을 포함하세요.
@@ -326,11 +294,8 @@ def _join_summaries(summaries: list[PaperSummary]) -> str:
 
 def _review_prompt(topic: str, literature_review: str, review_focus: str) -> str:
     return f"""
-Research topic:
-{topic}
-
-Literature review:
-{literature_review}
+Research topic: {topic}
+Literature review: {literature_review}
 
 아래 관점으로 peer review를 작성하세요: {review_focus}
 형식:

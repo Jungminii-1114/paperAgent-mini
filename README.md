@@ -1,10 +1,3 @@
-## Documents
-
-- [Agent Roadmap](./AGENT_ROADMAP.md)
-- [Implemented Agents](./AGENTS.md)
-- [Project Structure](./STRUCTURE.md)
-- [Mission Summary](./MISSION.md)
-- 
 # PaperAgent Mini
 
 Agent Laboratory 논문의 문헌조사 단계를 작게 재현한 미니 프로젝트입니다.

@@ -266,6 +266,49 @@ def write_paper_summaries(summaries: list[PaperSummary]) -> str:
     return "\n".join(lines)
 
 
+def write_quick_literature_review(topic: str, summaries: list[PaperSummary]) -> str:
+    lines = [
+        "# Quick Literature Review\n",
+        f"- **Research topic**: {topic}",
+        f"- **Paper count**: {len(summaries)}",
+        "\n## Paper Comparison\n",
+        "| # | Paper | arXiv ID | Key summary |",
+        "|---|---|---|---|",
+    ]
+    for index, summary in enumerate(summaries, start=1):
+        short_summary = _first_nonempty_line(summary.summary)
+        lines.append(
+            f"| {index} | {summary.title.replace('|', '/')} | "
+            f"[{summary.paper_id}](https://arxiv.org/abs/{summary.paper_id}) | "
+            f"{short_summary.replace('|', '/')} |"
+        )
+    lines.extend(
+        [
+            "\n## Note\n",
+            "This quick review is generated without an additional synthesis LLM call. "
+            "Enable the full literature review option when you want a richer PostdocAgent synthesis.",
+        ]
+    )
+    return "\n".join(lines).strip() + "\n"
+
+
+def write_single_paper_summary(
+    summary: PaperSummary,
+    reviewer_feedback: str | None = None,
+) -> str:
+    lines = [
+        f"# {summary.title}\n",
+        f"- **arXiv ID**: [{summary.paper_id}](https://arxiv.org/abs/{summary.paper_id})",
+        "\n## Abstract",
+        summary.abstract,
+        "\n## Agent Summary",
+        summary.summary,
+    ]
+    if reviewer_feedback:
+        lines.extend(["\n## Reviewer Feedback", reviewer_feedback])
+    return "\n".join(lines).strip() + "\n"
+
+
 def write_reviewer_feedback(feedbacks: list[tuple[PaperSummary, str]]) -> str:
     lines = ["# Reviewer Feedback\n"]
     for index, (summary, feedback) in enumerate(feedbacks, start=1):
@@ -290,6 +333,14 @@ def _join_summaries(summaries: list[PaperSummary]) -> str:
         f"## {item.title}\nID: {item.paper_id}\nAbstract: {item.abstract}\n\n{item.summary}"
         for item in summaries
     )
+
+
+def _first_nonempty_line(text: str) -> str:
+    for raw_line in text.splitlines():
+        line = raw_line.strip().lstrip("-*# ").strip()
+        if line:
+            return line[:180]
+    return "Summary generated."
 
 
 def _review_prompt(topic: str, literature_review: str, review_focus: str) -> str:

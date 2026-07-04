@@ -18,6 +18,8 @@ def main() -> None:
     run_parser.add_argument("--no-review", action="store_true")
     run_parser.add_argument("--extra-reviewers", action="store_true")
     run_parser.add_argument("--no-report", action="store_true")
+    run_parser.add_argument("--abstract-only", action="store_true")
+    run_parser.add_argument("--quick-review", action="store_true")
 
     args = parser.parse_args()
     if args.command != "run":
@@ -35,6 +37,8 @@ def main() -> None:
             enable_review=not args.no_review,
             enable_extra_reviewers=args.extra_reviewers,
             enable_report=not args.no_report,
+            read_pdf=not args.abstract_only,
+            enable_literature_review=not args.quick_review,
         )
     except RuntimeError as exc:
         print(f"\nError: {exc}", file=sys.stderr)
@@ -43,6 +47,10 @@ def main() -> None:
     print(f"Output dir: {result.output_dir}")
     print(f"Paper summaries: {result.paper_summaries_path}")
     print(f"Final review: {result.final_review_path}")
+    if result.paper_detail_paths:
+        print("Paper detail files:")
+        for path in result.paper_detail_paths:
+            print(f"  - {path}")
     if result.reviewer_feedback_path:
         print(f"Reviewer feedback: {result.reviewer_feedback_path}")
     if result.professor_report_path:

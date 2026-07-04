@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,7 +19,9 @@ from paperagent.agents import (
     PrototypeWriterAgent,
     ReviewerAgent,
     write_paper_summaries,
+    write_quick_literature_review,
     write_reviewer_feedback,
+    write_single_paper_summary,
 )
 from paperagent.arxiv_tool import read_arxiv_pdf, search_arxiv
 from paperagent.config import get_settings
@@ -31,6 +34,7 @@ class PipelineResult:
     paper_count: int
     paper_summaries_path: Path
     final_review_path: Path
+    paper_detail_paths: tuple[Path, ...] = ()
     reviewer_feedback_path: Path | None = None
     professor_report_path: Path | None = None
     experiment_review_path: Path | None = None
@@ -50,6 +54,8 @@ def run_pipeline(
     enable_review: bool = True,
     enable_extra_reviewers: bool = False,
     enable_report: bool = True,
+    read_pdf: bool = True,
+    enable_literature_review: bool = True,
 ) -> PipelineResult:
     settings = get_settings()
     max_papers = max_papers or settings.arxiv_max_results
@@ -69,18 +75,34 @@ def run_pipeline(
 
     summaries: list[PaperSummary] = []
     reviewer_feedbacks: list[tuple[PaperSummary, str]] = []
+    paper_detail_paths: list[Path] = []
+    paper_detail_dir = out_dir / "papers"
+    paper_detail_dir.mkdir(parents=True, exist_ok=True)
 
     for index, paper in enumerate(papers, start=1):
-        print(f"[2] Reading paper {index}/{len(papers)}: {paper.title}")
-        full_text = read_arxiv_pdf(paper, out_dir)
+        if read_pdf:
+            print(f"[2] Reading paper {index}/{len(papers)}: {paper.title}")
+            full_text = read_arxiv_pdf(paper, out_dir)
+        else:
+            print(f"[2] Using arXiv abstract for paper {index}/{len(papers)}: {paper.title}")
+            full_text = f"arXiv abstract only:\n{paper.summary}"
 
         print(f"[3] PaperReaderAgent summarizing paper {index}/{len(papers)}")
         summary = reader.summarize_paper(paper, full_text)
         summaries.append(summary)
 
+        reviewer_feedback: str | None = None
         if enable_review:
             print(f"[4] ReviewerAgent checking summary {index}/{len(papers)}")
-            reviewer_feedbacks.append((summary, reviewer.review_summary(summary, full_text)))
+            reviewer_feedback = reviewer.review_summary(summary, full_text)
+            reviewer_feedbacks.append((summary, reviewer_feedback))
+
+        paper_detail_path = paper_detail_dir / _paper_detail_filename(index, summary)
+        paper_detail_path.write_text(
+            write_single_paper_summary(summary, reviewer_feedback),
+            encoding="utf-8",
+        )
+        paper_detail_paths.append(paper_detail_path)
 
     print("[5] Saving paper summaries")
     paper_summaries_path = out_dir / "paper_summaries.md"
@@ -93,12 +115,16 @@ def run_pipeline(
         reviewer_feedback_path = out_dir / "reviewer_feedback.md"
         reviewer_feedback_path.write_text(reviewer_feedback_text, encoding="utf-8")
 
-    print("[6] PostdocAgent writing final literature review")
-    literature_review = postdoc.write_literature_review(
-        topic=topic,
-        summaries=summaries,
-        reviewer_feedback=reviewer_feedback_text,
-    )
+    if enable_literature_review:
+        print("[6] PostdocAgent writing final literature review")
+        literature_review = postdoc.write_literature_review(
+            topic=topic,
+            summaries=summaries,
+            reviewer_feedback=reviewer_feedback_text,
+        )
+    else:
+        print("[6] Saving quick literature review")
+        literature_review = write_quick_literature_review(topic, summaries)
     final_review_path = out_dir / "final_literature_review.md"
     final_review_path.write_text(literature_review, encoding="utf-8")
 
@@ -166,6 +192,7 @@ def run_pipeline(
         paper_count=len(summaries),
         paper_summaries_path=paper_summaries_path,
         final_review_path=final_review_path,
+        paper_detail_paths=tuple(paper_detail_paths),
         reviewer_feedback_path=reviewer_feedback_path,
         professor_report_path=professor_report_path,
         experiment_review_path=experiment_review_path,
@@ -176,3 +203,15 @@ def run_pipeline(
         prototype_path=prototype_path,
         prototype_readme_path=prototype_readme_path,
     )
+
+
+def _paper_detail_filename(index: int, summary: PaperSummary) -> str:
+    paper_id = _slug(summary.paper_id) or f"paper_{index}"
+    title = _slug(summary.title)[:80].strip("_")
+    if title:
+        return f"{index:02d}_{paper_id}_{title}.md"
+    return f"{index:02d}_{paper_id}.md"
+
+
+def _slug(text: str) -> str:
+    return re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("_")

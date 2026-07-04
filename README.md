@@ -168,7 +168,11 @@ MCP 연결 확인을 먼저 하고 싶으면:
 paperagent-mini MCP의 check_paperagent_settings tool을 실행해줘.
 ```
 
-Claude Desktop의 MCP tool은 오래 실행되면 timeout이 날 수 있습니다. 그래서 MCP 기본 실행은 `read_pdf=false`, `enable_review=false`, `enable_report=false`, `enable_literature_review=false`인 빠른 abstract 기반 실행으로 설정되어 있습니다. 전체 PDF를 읽고 모든 agent를 실행하려면 명시적으로 `read_pdf=true`, `enable_review=true`, `enable_report=true`, `enable_literature_review=true`를 넘기면 됩니다.
+Claude Desktop의 MCP tool은 오래 실행되면 timeout이 날 수 있습니다. 
+
+그래서 MCP 기본 실행은 `read_pdf=false`, `enable_review=false`, `enable_report=false`, `enable_literature_review=false`인 빠른 abstract 기반 실행으로 설정되어 있습니다. 
+
+전체 PDF를 읽고 모든 agent를 실행하려면 명시적으로 `read_pdf=true`, `enable_review=true`, `enable_report=true`, `enable_literature_review=true`를 넘기면 됩니다.
 
 ## 다음 확장 방향
 

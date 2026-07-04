@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-def load_dotenv(dotenv_path: Path = Path(".env")) -> None:
+def load_dotenv(dotenv_path: Path = Path(".env"), override: bool = True) -> None:
     if not dotenv_path.exists():
         return
 
@@ -18,7 +18,7 @@ def load_dotenv(dotenv_path: Path = Path(".env")) -> None:
         key, value = line.split("=", 1)
         key = key.strip()
         value = value.strip().strip('"').strip("'")
-        if key and not os.environ.get(key):
+        if key and (override or not os.environ.get(key)):
             os.environ[key] = value
 
 

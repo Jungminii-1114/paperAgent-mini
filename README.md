@@ -15,19 +15,6 @@ Agent Laboratory 논문의 문헌조사 단계를 작게 재현한 미니 프로
 7. `PrototypeWriterAgent`가 mock data 기반 `prototype.py`와 실행 README 생성
 8. `ProfessorAgent`가 발표/과제 제출용 최종 보고서 초안 정리
 
-| Agent | 역할 |
-|---|---|
-| `BaseAgent` | 모든 prompt 기반 agent의 공통 부모 클래스 |
-| `PaperReaderAgent` | 논문 PDF/abstract를 읽고 논문별 요약 생성 |
-| `ReviewerAgent` | 논문 요약이 원문과 맞는지 검토 |
-| `PostdocAgent` | 여러 논문 요약과 reviewer feedback을 종합해 literature review 작성 |
-| `ProfessorAgent` | 최종 프로젝트 보고서 초안 정리 |
-| `MethodExtractionAgent` | 논문 요약에서 구현 가능한 방법론/수식/알고리즘 추출 |
-| `PrototypePlannerAgent` | 추출된 방법론을 바탕으로 구현 계획 작성 |
-| `PrototypeWriterAgent` | mock data 기반 `prototype.py`와 README 생성 |
-| `ExperimentReviewerAgent` | 실험 설계, metric, baseline, ablation 관점 평가 |
-| `NoveltyReviewerAgent` | novelty, 차별점, incremental risk 평가 |
-| `ImpactReviewerAgent` | 연구 의의, 활용 가능성, impact 평가 |
 
 선택 옵션으로 `ExperimentReviewerAgent`, `NoveltyReviewerAgent`, `ImpactReviewerAgent`도 실행할 수 있습니다.
 

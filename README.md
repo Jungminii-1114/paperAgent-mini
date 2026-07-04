@@ -163,4 +163,5 @@ paperagent-mini MCP 실행해줘.
 
 ## 다음 확장 방향
 
-짧게는 prompt 품질과 결과 요약 UI를 다듬고, 중기적으로는 `MLESolver`, `SWEngineerAgent`, `PaperSolver`, `AgentRxiv`를 추가하면 Agent Laboratory 구조에 더 가까워집니다. 자세한 후보는 `AGENT_ROADMAP.md`를 참고하세요.
+- prompt 품질과 결과 요약 UI 다듬기
+- `MLESolver`, `SWEngineerAgent`, `PaperSolver`, `AgentRxiv`, 등 추가하기

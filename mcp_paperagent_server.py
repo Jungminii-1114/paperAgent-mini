@@ -69,6 +69,7 @@ def check_paperagent_settings() -> str:
 def run_paper_literature_review(
     topic: str,
     max_papers: int = 3,
+    paper_ids: list[str] | None = None,
     enable_prototype: bool = False,
     enable_review: bool = False,
     enable_extra_reviewers: bool = False,
@@ -76,7 +77,7 @@ def run_paper_literature_review(
     read_pdf: bool = False,
     enable_literature_review: bool = False,
 ) -> str:
-    """Search arXiv using the user's topic, read papers, run agents, and save outputs.
+    """Search arXiv using the user's topic or fetch fixed paper IDs, run agents, and save outputs.
 
     If the user only says "mcp 실행해줘" or does not provide a topic, ask for:
     topic, max_papers, and enable_prototype before calling this tool.
@@ -100,6 +101,7 @@ def run_paper_literature_review(
             enable_report=enable_report,
             read_pdf=read_pdf,
             enable_literature_review=enable_literature_review,
+            paper_ids=paper_ids,
         )
     except RuntimeError as exc:
         return f"# PaperAgent 실행 실패\n\n{exc}"

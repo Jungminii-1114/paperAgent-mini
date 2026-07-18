@@ -7,6 +7,7 @@ arXiv directly and fails with a clear message when arXiv rate-limits requests.
 from __future__ import annotations
 
 import os
+import re
 import time
 import urllib.error
 import urllib.parse
@@ -56,6 +57,42 @@ def search_arxiv(query: str, max_results: int = 5) -> list[ArxivPaper]:
             raise RuntimeError(f"arXiv 네트워크 연결 실패: {exc}") from exc
 
     raise RuntimeError("arXiv 검색이 모든 재시도 후에도 실패했습니다.")
+
+
+def fetch_arxiv_by_ids(paper_ids: list[str]) -> list[ArxivPaper]:
+    """Fetch specific arXiv papers by ID, preserving the requested order."""
+    normalized_ids = [paper_id.strip() for paper_id in paper_ids if paper_id.strip()]
+    if not normalized_ids:
+        raise RuntimeError("arXiv ID 목록이 비어 있습니다.")
+
+    params = {
+        "id_list": ",".join(normalized_ids),
+        "start": "0",
+        "max_results": str(len(normalized_ids)),
+    }
+    url = f"{ARXIV_API_URL}?{urllib.parse.urlencode(params)}"
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            papers = _parse_arxiv_feed(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raise RuntimeError(_format_arxiv_error(exc, ", ".join(normalized_ids))) from exc
+    except urllib.error.URLError as exc:
+        raise RuntimeError(f"arXiv 네트워크 연결 실패: {exc}") from exc
+
+    by_base_id = {_base_arxiv_id(paper.paper_id): paper for paper in papers}
+    ordered: list[ArxivPaper] = []
+    missing: list[str] = []
+    for paper_id in normalized_ids:
+        paper = by_base_id.get(_base_arxiv_id(paper_id))
+        if paper is None:
+            missing.append(paper_id)
+        else:
+            ordered.append(paper)
+
+    if missing:
+        raise RuntimeError(f"arXiv ID를 찾지 못했습니다: {', '.join(missing)}")
+    return ordered
 
 
 def read_arxiv_pdf(paper: ArxivPaper, work_dir: Path) -> str:
@@ -134,6 +171,10 @@ def _find_pdf_url(entry: ET.Element, ns: dict[str, str]) -> str:
 def _paper_id_from_abs_url(abs_url: str) -> str:
     paper_id = abs_url.rstrip("/").rsplit("/", 1)[-1]
     return paper_id or "unknown"
+
+
+def _base_arxiv_id(paper_id: str) -> str:
+    return re.sub(r"v\d+$", "", paper_id.strip())
 
 
 def _normalize_space(text: str | None) -> str:

@@ -23,7 +23,7 @@ from paperagent.agents import (
     write_reviewer_feedback,
     write_single_paper_summary,
 )
-from paperagent.arxiv_tool import read_arxiv_pdf, search_arxiv
+from paperagent.arxiv_tool import fetch_arxiv_by_ids, read_arxiv_pdf, search_arxiv
 from paperagent.config import get_settings
 
 
@@ -56,6 +56,7 @@ def run_pipeline(
     enable_report: bool = True,
     read_pdf: bool = True,
     enable_literature_review: bool = True,
+    paper_ids: list[str] | None = None,
 ) -> PipelineResult:
     settings = get_settings()
     max_papers = max_papers or settings.arxiv_max_results
@@ -70,8 +71,12 @@ def run_pipeline(
     planner_agent = PrototypePlannerAgent()
     writer_agent = PrototypeWriterAgent()
 
-    print(f"[1] Searching arXiv directly for: {topic}")
-    papers = search_arxiv(topic, max_results=max_papers)
+    if paper_ids:
+        print(f"[1] Fetching arXiv papers by ID: {', '.join(paper_ids)}")
+        papers = fetch_arxiv_by_ids(paper_ids)
+    else:
+        print(f"[1] Searching arXiv directly for: {topic}")
+        papers = search_arxiv(topic, max_results=max_papers)
 
     summaries: list[PaperSummary] = []
     reviewer_feedbacks: list[tuple[PaperSummary, str]] = []

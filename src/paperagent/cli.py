@@ -20,6 +20,12 @@ def main() -> None:
     run_parser.add_argument("--no-report", action="store_true")
     run_parser.add_argument("--abstract-only", action="store_true")
     run_parser.add_argument("--quick-review", action="store_true")
+    run_parser.add_argument(
+        "--paper-id",
+        action="append",
+        default=None,
+        help="Specific arXiv ID to read. Repeat this option to read multiple fixed papers.",
+    )
 
     args = parser.parse_args()
     if args.command != "run":
@@ -39,6 +45,7 @@ def main() -> None:
             enable_report=not args.no_report,
             read_pdf=not args.abstract_only,
             enable_literature_review=not args.quick_review,
+            paper_ids=args.paper_id,
         )
     except RuntimeError as exc:
         print(f"\nError: {exc}", file=sys.stderr)
